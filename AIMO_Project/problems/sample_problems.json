@@ -1,0 +1,5 @@
+[
+  { "id": "p1", "latex": "What is 2 + 3?", "answer": 5 },
+  { "id": "p2", "latex": "Compute 7 * 8.", "answer": 56 },
+  { "id": "p3", "latex": "What is the remainder when 100 is divided by 7?", "answer": 2 }
+]
