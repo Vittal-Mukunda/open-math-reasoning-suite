@@ -10,19 +10,22 @@
 
 ## 📖 Overview
 
-This repository simulates an **AI Mathematical Olympiad (AIMO)** competition environment. It provides a local evaluation sandbox identical in structure to official competitions, allowing you to:
+This repository simulates an **AI Mathematical Olympiad (AIMO)** competition environment.  
+It provides a local evaluation sandbox identical to official AI reasoning competitions.
 
-- 📥 **Load** Olympiad-style math problems.
-- 🏃 **Run** a baseline or custom solver.
-- 📝 **Submit** answers to an internal evaluator.
-- 📊 **Score** your model’s performance exactly like a real AI competition.
-- 📄 **Generate** an automatic `submission.csv`.
+With this framework, you can:
+
+- 📥 **Load** Olympiad-style math problems  
+- 🧠 **Develop & run** custom solvers  
+- 📝 **Submit** answers programmatically  
+- 📊 **Score** predictions using competition rules  
+- 📄 **Generate** automatic `submission.csv` submissions  
 
 ---
 
 ## 📁 Repository Structure
 
-The project is organized to separate the evaluation logic from the problem datasets and solver implementations.
+The project is structured to cleanly separate the evaluation logic, datasets, and solver implementations.
 
 ```text
 AIMO_Project/
@@ -50,24 +53,43 @@ AIMO_Project/
 │
 ├── submission.csv         # Output file (Generated after running)
 └── test_runner.py         # Main execution script
+```
+
+---
 
 ## 🔍 Component Details
 
-### 1. The API (`api/`)
-A simulated interface that mirrors how official AIMO competition servers interact with models.
+### 🔹 1. API Layer (`api/`)
+
+A simulated interface that mirrors how real competition servers interact with models.
 
 | Function | Description |
-| :--- | :--- |
-| `get_next()` | Fetches the next problem object from the queue. |
-| `submit(id, answer)` | Stores the prediction for the specific problem ID. |
-| `reset()` | Clears the current state (useful for restarting runs). |
+|---------|-------------|
+| `get_next()` | Returns the next unsolved problem from the queue |
+| `submit(id, answer)` | Records the solver's prediction |
+| `reset()` | Clears internal state for a fresh run |
 
-### 2. The Evaluator (`evaluator/`)
-- **`loader.py`**: Loads problems from JSON, ensuring fields like `id`, `latex`, and `answer` exist.
-- **`scoring.py`**: Compares predictions with ground truth, calculates the final score, and writes the results to `submission.csv`.
+---
 
-### 3. Problem Format (`problems/`)
-Problems are stored in `sample_problems.json` following this strict schema:
+### 🔹 2. Evaluator (`evaluator/`)
+
+- **`loader.py`**  
+  Loads JSON problems and ensures required fields:  
+  - `id`  
+  - `latex`  
+  - `answer`
+
+- **`scoring.py`**  
+  - Compares model predictions with ground truth  
+  - Computes a final score  
+  - Generates `submission.csv`  
+  - Prints a detailed scoring breakdown  
+
+---
+
+### 🔹 3. Problem Format (`problems/`)
+
+All problems follow a strict schema inside `sample_problems.json`:
 
 ```json
 {
@@ -75,48 +97,121 @@ Problems are stored in `sample_problems.json` following this strict schema:
   "latex": "What is 10 + 10?",
   "answer": 20
 }
+```
+
+---
 
 ## 🛠 Installation & Setup
 
-### Prerequisites
-* Python 3.8 or higher
+### ✅ Prerequisites  
+- Python **3.8+**
 
-### Step 1: Verify Python
+---
+
+### ▶️ Step 1: Verify Python Installation
+
 ```powershell
 python --version
+```
 
-### Step 2: Clone & Navigate
-Navigate to the project directory (update the path to match your local machine).
+---
+
+### ▶️ Step 2: Navigate to the Project Directory
+
+> Update the path according to your machine.
 
 ```powershell
 cd C:\Users\Vittal\OneDrive\Desktop\Math_Olympiad\open-math-reasoning-suite\AIMO_Project
+```
 
-### Step 2: Dependencies
+---
+
+### ▶️ Step 3: Install Dependencies
+
+```powershell
 pip install -r requirements.txt
+```
+
+---
 
 ## ▶️ Usage Guide
 
-### Running the Evaluation
-To run the full simulation—which loads problems, runs the solver, and grades the results—execute the test runner:
+### 🔥 Running the Evaluation
 
 ```powershell
 python test_runner.py
+```
 
-**Expected Output:**
-1.  Console log showing progress.
-2.  Final Score summary.
-3.  Generation of `submission.csv` in the root folder.
+### ✔ Expected Output:
 
-### Adding Custom Problems
-You can extend the dataset by editing `problems/sample_problems.json`.
+- A console log showing progress  
+- Final score summary  
+- A generated **`submission.csv`** in the project folder  
 
-**Example:**
+---
+
+## ➕ Adding Custom Problems
+
+Open:
+
+```
+problems/sample_problems.json
+```
+
+### Example Problem Entry:
+
 ```json
-[
-  ...
-  {
-    "id": "p7",
-    "latex": "Find the value of 3^3.",
-    "answer": 27
-  }
-]
+{
+  "id": "p7",
+  "latex": "Find the value of 3^3.",
+  "answer": 27
+}
+```
+
+Be sure to maintain **valid JSON formatting**.
+
+---
+
+## 🤖 Adding Custom Solvers
+
+Create your own solver in:
+
+```
+baselines/my_solver.py
+```
+
+Example template:
+
+```python
+from api.client import AIMOClient
+
+def run():
+    client = AIMOClient()
+    problem = client.get_next()
+
+    while problem:
+        # Replace with your model's logic
+        answer = 0
+        client.submit(problem["id"], answer)
+        problem = client.get_next()
+```
+
+Then modify `test_runner.py` to call your solver instead of the baseline.
+
+---
+
+## 📄 License
+
+This project is licensed under the **MIT License**.
+
+---
+
+## ⭐ Acknowledgements
+
+Inspired by academic AI reasoning benchmarks including:
+
+- AI Mathematical Olympiads  
+- MATH dataset  
+- GSM8K reasoning tasks  
+
+---
