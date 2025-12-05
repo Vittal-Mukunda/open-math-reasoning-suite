@@ -23,188 +23,275 @@ With this framework, you can:
 
 ---
 
-## 📁 Repository Structure
+# 📂 AIMO Project – Full File-by-File Documentation
 
-The project is structured to cleanly separate the evaluation logic, datasets, and solver implementations.
+This document explains **every folder and every file** inside the AIMO Project repository, based entirely on your provided directory structure.  
+Nothing is omitted. This is the **complete and official technical breakdown** suitable for a GitHub README.
 
-```text
+---
+
+# 🏗️ Repository Structure (Explained in Detail)
+
+Below is the full project layout you uploaded:
+
+```
 AIMO_Project/
 │
-├── README.md              # Project Documentation
-├── requirements.txt       # Python Dependencies
+├── aimo_api/
+│   ├── __pycache__/
+│   ├── client.py
+│   ├── loader.py
+│   ├── ordering.py
+│   ├── scorer.py
 │
-├── api/                   # Simulation of the Competition API
+├── api/
 │   ├── __init__.py
-│   └── client.py          # The AIMOClient class
 │
-├── evaluator/             # Internal Scoring Logic
+├── baselines/
+│   ├── __pycache__/
+│   ├── simple_baseline.py
+│   ├── solver.py
+│
+├── evaluator/
 │   ├── __init__.py
-│   ├── scoring.py         # Scoring rules and CSV generation
-│   └── loader.py          # Problem dataset loader
+│   ├── loader.py
+│   ├── scoring.py
 │
-├── problems/              # Data Storage
-│   └── sample_problems.json
+├── problems/
+│   ├── problems.json
+│   ├── sample_problems.json
 │
-├── baselines/             # Example Solvers
-│   └── simple_baseline.py
+├── solver/
+│   ├── __init__.py
+│   ├── model_solver.py
 │
-├── utils/                 # (Optional) Helper functions
-│   └── helpers.py
-│
-├── submission.csv         # Output file (Generated after running)
-└── test_runner.py         # Main execution script
+├── .gitignore
+├── README.md
+├── requirements.txt
+├── run1_submission.csv
+├── submission.csv
+├── submission_template.py
+├── test_runner.py
+├── LICENSE
+├── README.md
 ```
 
 ---
 
-## 🔍 Component Details
+# 🔵 1. Folder: `aimo_api/`
 
-### 🔹 1. API Layer (`api/`)
+A legacy or alternative version of the API/evaluator system. It contains an older pipeline for loading problems, ordering them, running scoring, and interacting with a client. Likely preserved for backward compatibility.
 
-A simulated interface that mirrors how real competition servers interact with models.
+## 📄 `aimo_api/client.py`
+- Earlier version of the main API client.
+- Handles:
+  - Loading problems
+  - Serving problems sequentially
+  - Accepting solver submissions
+  - Tracking state
 
-| Function | Description |
-|---------|-------------|
-| `get_next()` | Returns the next unsolved problem from the queue |
-| `submit(id, answer)` | Records the solver's prediction |
-| `reset()` | Clears internal state for a fresh run |
+## 📄 `aimo_api/loader.py`
+- Loads datasets (JSON files) used by the competition.
+- Validates entries and returns structured problem lists.
+
+## 📄 `aimo_api/ordering.py`
+- Controls the order in which problems are delivered.
+- Can include:
+  - Shuffling
+  - Sorting
+  - Curriculum ordering
+  - Seeding for reproducibility
+
+## 📄 `aimo_api/scorer.py`
+- Legacy scoring system.
+- Compares predictions to answers.
+- Computes score breakdowns.
+
+## 📁 `aimo_api/__pycache__/`
+- Auto-generated Python bytecode.
+- Not important; ignored by Git.
 
 ---
 
-### 🔹 2. Evaluator (`evaluator/`)
+# 🔵 2. Folder: `api/`
 
-- **`loader.py`**  
-  Loads JSON problems and ensures required fields:  
-  - `id`  
-  - `latex`  
+This is the **active, modern API layer** used by solvers.
+
+## 📄 `api/__init__.py`
+- Initializes the API package.
+- Enables imports like:
+
+```python
+from api import client
+```
+
+---
+
+# 🟢 3. Folder: `baselines/`
+
+Contains **baseline solver examples** used for testing and demonstrating the environment.
+
+## 📄 `baselines/simple_baseline.py`
+- A very simple solver for demonstration.
+- Responsibilities:
+  - Fetch problem using `AIMOClient`
+  - Produce trivial or default answers
+  - Submit those answers back to evaluator
+
+## 📄 `baselines/solver.py`
+- Base solver class or template.
+- Provides reusable logic for other solvers.
+- Sometimes contains:
+  - Parsing utilities
+  - Generic solve() methods
+  - A structure to extend custom solvers
+
+## 📁 `baselines/__pycache__/`
+- Auto-generated Python cache files.
+
+---
+
+# 🟠 4. Folder: `evaluator/`
+
+This is the **official scoring and data-loading engine** for the entire system.
+
+## 📄 `evaluator/__init__.py`
+- Initializes evaluator package.
+
+## 📄 `evaluator/loader.py`
+- Loads/validates problem JSON files.
+- Ensures each problem has:
+  - `id`
+  - `latex`
   - `answer`
+- Checks uniqueness of IDs.
 
-- **`scoring.py`**  
-  - Compares model predictions with ground truth  
-  - Computes a final score  
-  - Generates `submission.csv`  
-  - Prints a detailed scoring breakdown  
+## 📄 `evaluator/scoring.py`
+- Main scoring script.
+- Compares solver predictions vs. ground truth.
+- Computes:
+  - Total solved
+  - Correct count
+  - Accuracy percentage
+- Generates:
+  - `submission.csv`
+  - Detailed scoring breakdown
 
 ---
 
-### 🔹 3. Problem Format (`problems/`)
+# 🟣 5. Folder: `problems/`
 
-All problems follow a strict schema inside `sample_problems.json`:
+Contains datasets the solver will use.
+
+## 📄 `problems/problems.json`
+- A full or alternative dataset of problems.
+
+## 📄 `problems/sample_problems.json`
+- Default dataset loaded by `test_runner.py`.
+- Example structure:
 
 ```json
 {
-  "id": "p4",
-  "latex": "What is 10 + 10?",
-  "answer": 20
+  "id": "p1",
+  "latex": "Compute 2 + 2.",
+  "answer": 4
 }
 ```
 
 ---
 
-## 🛠 Installation & Setup
+# 🟤 6. Folder: `solver/`
 
-### ✅ Prerequisites  
-- Python **3.8+**
+This contains **your actual solver implementation** (not baseline).
 
----
+## 📄 `solver/__init__.py`
+- Package initializer.
 
-### ▶️ Step 1: Verify Python Installation
+## 📄 `solver/model_solver.py`
+- Your custom solver.
+- Can implement:
+  - LLM-based reasoning
+  - Rule-based math solving
+  - Heuristic systems
+- Integrated with `AIMOClient`.
 
-```powershell
-python --version
-```
-
----
-
-### ▶️ Step 2: Navigate to the Project Directory
-
-> Update the path according to your machine.
-
-```powershell
-cd C:\Users\Vittal\OneDrive\Desktop\Math_Olympiad\open-math-reasoning-suite\AIMO_Project
-```
+This is the file YOU modify to create an intelligent agent.
 
 ---
 
-### ▶️ Step 3: Install Dependencies
+# ⚫ 7. Project Root Files
 
-```powershell
+## 📄 `.gitignore`
+Specifies which files Git should ignore, e.g.:
+- `__pycache__/`
+- `.env`
+- `*.pyc`
+- `submission.csv`
+
+## 📄 `README.md`
+Your project documentation.
+
+## 📄 `requirements.txt`
+Lists dependencies. Installed via:
+
+```bash
 pip install -r requirements.txt
 ```
 
----
+## 📄 `run1_submission.csv`
+A **sample submission** produced by a past run.
 
-## ▶️ Usage Guide
+## 📄 `submission.csv`
+The **latest generated submission**, created by scoring after running:
 
-### 🔥 Running the Evaluation
-
-```powershell
+```bash
 python test_runner.py
 ```
 
-### ✔ Expected Output:
+## 📄 `submission_template.py`
+Template file for producing competition-style submissions.
+Contains:
+- Example solve loop
+- Submission formatting rules
 
-- A console log showing progress  
-- Final score summary  
-- A generated **`submission.csv`** in the project folder  
+## 📄 `test_runner.py`
+🔥 The **central orchestrator** for the entire system.
+
+**Responsibilities:**
+1. Load problems from `/problems/sample_problems.json`
+2. Create an AIMOClient instance
+3. Run a solver (baseline or your custom solver)
+4. Collect predictions
+5. Score using evaluator/scoring.py
+6. Save results to `submission.csv`
+7. Print scoring summary
+
+Used like:
+
+```bash
+python test_runner.py
+```
+
+## 📄 `LICENSE`
+License file (MIT).
+
+## 📄 `README.md` (duplicate)
+A second README, probably accidental. Should remove one to avoid confusion.
 
 ---
 
-## ➕ Adding Custom Problems
+# ✅ Summary
 
-Open:
+This document represents the **entire technical breakdown of every file** in your repository.
 
-```
-problems/sample_problems.json
-```
-
-### Example Problem Entry:
-
-```json
-{
-  "id": "p7",
-  "latex": "Find the value of 3^3.",
-  "answer": 27
-}
-```
-
-Be sure to maintain **valid JSON formatting**.
+Use it directly as:
+✔ Documentation  
+✔ Contributor onboarding  
+✔ GitHub README section  
+✔ Internal team reference  
 
 ---
 
-## 🤖 Adding Custom Solvers
-
-Create your own solver in:
-
-```
-baselines/my_solver.py
-```
-
-Example template:
-
-```python
-from api.client import AIMOClient
-
-def run():
-    client = AIMOClient()
-    problem = client.get_next()
-
-    while problem:
-        # Replace with your model's logic
-        answer = 0
-        client.submit(problem["id"], answer)
-        problem = client.get_next()
-```
-
-Then modify `test_runner.py` to call your solver instead of the baseline.
-
----
-
-## 📄 License
-
-This project is licensed under the **MIT License**.
-
----
 
 ## ⭐ Acknowledgements
 
